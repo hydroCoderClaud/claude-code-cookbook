@@ -16,7 +16,7 @@
 
 ## 预览地址
 
-https://hydrocoderclaud.github.io/claude-code-cookbook/学习claude code编程的学习链接.html
+https://hydrocoderclaud.github.io/claude-code-cookbook/学习claudecode编程的学习链接.html
 
 ## 贡献
 
