@@ -83,6 +83,23 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
+## 升级更新
+
+```bash
+# 进入项目目录
+cd /你的路径/claude-code-cookbook
+
+# 拉取最新代码
+git pull
+
+# 运行部署脚本
+cd knowledge-base/deploy
+./deploy.sh
+# 选择 2. 仅更新代码并重启
+```
+
+数据不会丢失，数据库文件 `backend/data/knowledge.db` 不受 git 影响。
+
 ## 常用命令
 
 ```bash
@@ -95,11 +112,12 @@ pm2 logs knowledge-base
 # 重启服务
 pm2 restart knowledge-base
 
-# 更新代码后重新部署
-git pull
-cd backend && npm install
-cd ../frontend && npm install && npm run build
-pm2 restart knowledge-base
+# 停止服务
+pm2 stop knowledge-base
+
+# 开机自启
+pm2 startup
+pm2 save
 ```
 
 ## 账号信息
