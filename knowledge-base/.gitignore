@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# 部署配置（不要提交，防止 git pull 覆盖）
+deploy/config.sh
+
 # Database files
 backend/data/*.db
 

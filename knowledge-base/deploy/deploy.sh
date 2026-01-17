@@ -7,13 +7,26 @@
 
 set -e  # 出错时停止执行
 
-# 配置变量（根据实际情况修改）
+# 获取脚本所在目录
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# 加载配置文件
+if [ -f "$SCRIPT_DIR/config.sh" ]; then
+    source "$SCRIPT_DIR/config.sh"
+else
+    echo "请先创建配置文件："
+    echo "  cp config.example.sh config.sh"
+    echo "  nano config.sh"
+    exit 1
+fi
+
+# 默认值
 APP_NAME="knowledge-base"
 REPO_URL="git@github.com:hydroCoderClaud/claude-code-cookbook.git"
-DEPLOY_DIR="/var/www/knowledge-base"
-DOMAIN="your-domain.com"  # 修改为你的域名或IP
-NODE_VERSION="18"
-PORT=3000
+DEPLOY_DIR="${DEPLOY_DIR:-/var/www/knowledge-base}"
+DOMAIN="${DOMAIN:-localhost}"
+NODE_VERSION="${NODE_VERSION:-18}"
+PORT="${PORT:-3000}"
 
 # 颜色输出
 RED='\033[0;31m'
