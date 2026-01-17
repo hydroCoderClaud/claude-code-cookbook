@@ -244,11 +244,7 @@ main() {
     echo "=========================================="
     echo ""
 
-    # 检查是否为 root 或有 sudo 权限
-    if [ "$EUID" -eq 0 ]; then
-        log_error "请不要使用 root 用户运行，使用普通用户（需要 sudo 权限）"
-        exit 1
-    fi
+    # root 用户也允许运行
 
     PS3="请选择操作: "
     options=(
