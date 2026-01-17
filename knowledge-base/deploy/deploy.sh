@@ -178,7 +178,17 @@ deploy_frontend() {
 setup_nginx() {
     log_info "配置 Nginx..."
 
-    sudo tee /etc/nginx/sites-available/$APP_NAME > /dev/null << EOF
+    # 检测 Nginx 配置目录 (Debian 用 sites-available, RHEL/Euler 用 conf.d)
+    if [ -d "/etc/nginx/sites-available" ]; then
+        NGINX_CONF="/etc/nginx/sites-available/$APP_NAME"
+        NGINX_ENABLED="/etc/nginx/sites-enabled/$APP_NAME"
+        USE_SITES_AVAILABLE=true
+    else
+        NGINX_CONF="/etc/nginx/conf.d/${APP_NAME}.conf"
+        USE_SITES_AVAILABLE=false
+    fi
+
+    sudo tee $NGINX_CONF > /dev/null << EOF
 server {
     listen 80;
     server_name ${DOMAIN};
@@ -214,11 +224,11 @@ server {
 }
 EOF
 
-    # 启用站点
-    sudo ln -sf /etc/nginx/sites-available/$APP_NAME /etc/nginx/sites-enabled/
-
-    # 删除默认站点（可选）
-    sudo rm -f /etc/nginx/sites-enabled/default
+    # 启用站点 (仅 Debian 系统需要)
+    if [ "$USE_SITES_AVAILABLE" = true ]; then
+        sudo ln -sf $NGINX_CONF $NGINX_ENABLED
+        sudo rm -f /etc/nginx/sites-enabled/default
+    fi
 
     # 测试配置
     sudo nginx -t
