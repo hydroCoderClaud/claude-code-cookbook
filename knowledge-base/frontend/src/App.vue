@@ -239,6 +239,12 @@ const handleLogout = () => {
   gap: 4px;
   cursor: pointer;
   color: #606266;
+  outline: none;
+  border: none;
+}
+
+.user-dropdown:focus {
+  outline: none;
 }
 
 .app-main {
