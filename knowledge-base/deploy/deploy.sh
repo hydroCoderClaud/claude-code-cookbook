@@ -44,14 +44,35 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 install_dependencies() {
     log_info "安装系统依赖..."
 
-    sudo apt update
-    sudo apt install -y curl git nginx
+    # 检测包管理器
+    if command -v apt &> /dev/null; then
+        PKG_MANAGER="apt"
+        sudo apt update
+        sudo apt install -y curl git nginx
+    elif command -v dnf &> /dev/null; then
+        PKG_MANAGER="dnf"
+        sudo dnf install -y curl git nginx
+    elif command -v yum &> /dev/null; then
+        PKG_MANAGER="yum"
+        sudo yum install -y curl git nginx
+    else
+        log_error "未找到支持的包管理器 (apt/dnf/yum)"
+        exit 1
+    fi
+
+    log_info "使用包管理器: $PKG_MANAGER"
 
     # 安装 Node.js (如果未安装)
     if ! command -v node &> /dev/null; then
         log_info "安装 Node.js ${NODE_VERSION}..."
-        curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
-        sudo apt install -y nodejs
+        if [ "$PKG_MANAGER" = "apt" ]; then
+            curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
+            sudo apt install -y nodejs
+        else
+            # RHEL/CentOS/Euler 系统
+            curl -fsSL https://rpm.nodesource.com/setup_${NODE_VERSION}.x | sudo bash -
+            sudo $PKG_MANAGER install -y nodejs
+        fi
     fi
 
     # 安装 PM2 (如果未安装)
@@ -59,6 +80,10 @@ install_dependencies() {
         log_info "安装 PM2..."
         sudo npm install -g pm2
     fi
+
+    # 启动 nginx
+    sudo systemctl enable nginx
+    sudo systemctl start nginx
 
     log_info "Node 版本: $(node -v)"
     log_info "NPM 版本: $(npm -v)"
@@ -211,13 +236,19 @@ setup_ssl() {
     log_info "配置 SSL 证书..."
 
     # 安装 certbot
-    sudo apt install -y certbot python3-certbot-nginx
+    if command -v apt &> /dev/null; then
+        sudo apt install -y certbot python3-certbot-nginx
+    elif command -v dnf &> /dev/null; then
+        sudo dnf install -y certbot python3-certbot-nginx
+    elif command -v yum &> /dev/null; then
+        sudo yum install -y certbot python3-certbot-nginx
+    fi
 
     # 获取证书
     sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos -m admin@$DOMAIN
 
     # 自动续期
-    sudo systemctl enable certbot.timer
+    sudo systemctl enable certbot-renew.timer 2>/dev/null || sudo systemctl enable certbot.timer 2>/dev/null || true
 
     log_info "SSL 证书配置完成"
 }
@@ -228,9 +259,19 @@ setup_ssl() {
 setup_firewall() {
     log_info "配置防火墙..."
 
-    sudo ufw allow ssh
-    sudo ufw allow 'Nginx Full'
-    sudo ufw --force enable
+    # 检测防火墙类型
+    if command -v ufw &> /dev/null; then
+        sudo ufw allow ssh
+        sudo ufw allow 'Nginx Full'
+        sudo ufw --force enable
+    elif command -v firewall-cmd &> /dev/null; then
+        sudo firewall-cmd --permanent --add-service=ssh
+        sudo firewall-cmd --permanent --add-service=http
+        sudo firewall-cmd --permanent --add-service=https
+        sudo firewall-cmd --reload
+    else
+        log_warn "未检测到防火墙，跳过配置"
+    fi
 
     log_info "防火墙配置完成"
 }
