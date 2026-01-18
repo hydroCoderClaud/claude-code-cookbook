@@ -1,7 +1,19 @@
 <template>
   <el-config-provider :locale="zhCn">
     <div class="app-container">
-      <!-- 顶部导航 -->
+      <!-- 游客导航 -->
+      <el-header v-if="!userStore.isLoggedIn && $route.meta.guestAllowed" class="app-header">
+        <div class="header-content">
+          <div class="header-left">
+            <router-link to="/" class="logo">HydroCoder</router-link>
+          </div>
+          <div class="header-right">
+            <el-button type="primary" @click="router.push('/login')">登录</el-button>
+          </div>
+        </div>
+      </el-header>
+
+      <!-- 登录用户导航 -->
       <el-header v-if="userStore.isLoggedIn" class="app-header">
         <div class="header-content">
           <div class="header-left">

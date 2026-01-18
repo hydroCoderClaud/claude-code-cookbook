@@ -9,8 +9,8 @@
     </div>
 
     <div v-show="isExpanded" class="comment-body">
-      <!-- 评论输入 -->
-      <div class="comment-input">
+      <!-- 评论输入 - 仅登录用户可见 -->
+      <div v-if="userStore.isLoggedIn" class="comment-input">
         <el-input
           v-model="newComment"
           type="textarea"
@@ -21,6 +21,9 @@
         <el-button type="primary" size="small" :loading="submitting" @click="submitComment">
           发表
         </el-button>
+      </div>
+      <div v-else class="guest-hint">
+        <router-link to="/login">登录</router-link>后可发表评论
       </div>
 
       <!-- 评论列表 -->
@@ -230,5 +233,23 @@ const formatTime = (dateStr) => {
   color: #909399;
   font-size: 13px;
   padding: 16px 0;
+}
+
+.guest-hint {
+  font-size: 13px;
+  color: #909399;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #f5f7fa;
+  border-radius: 4px;
+}
+
+.guest-hint a {
+  color: #409eff;
+  text-decoration: none;
+}
+
+.guest-hint a:hover {
+  text-decoration: underline;
 }
 </style>

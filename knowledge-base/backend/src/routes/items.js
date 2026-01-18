@@ -1,5 +1,5 @@
 const express = require('express');
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { authenticateToken, optionalAuth } = require('../middleware/auth');
 const { sanitizeText, sanitizeHtml, sanitizeUrl } = require('../utils/sanitize');
 
 function createItemsRouter(db) {
@@ -43,7 +43,8 @@ function createItemsRouter(db) {
     };
 
     // 获取列表（支持分页、标签筛选、搜索、排序、时间筛选）
-    router.get('/', authenticateToken, (req, res) => {
+    // 游客可浏览，使用 optionalAuth
+    router.get('/', optionalAuth, (req, res) => {
         const { type, tag, q, sort = 'desc', page = 1, limit = 20, time } = req.query;
         const offset = (parseInt(page) - 1) * parseInt(limit);
 
@@ -131,8 +132,8 @@ function createItemsRouter(db) {
         }
     });
 
-    // 获取单条详情
-    router.get('/:id', authenticateToken, (req, res) => {
+    // 获取单条详情（游客可浏览）
+    router.get('/:id', optionalAuth, (req, res) => {
         try {
             const item = db.prepare(`
                 SELECT i.*, u.username as author_name

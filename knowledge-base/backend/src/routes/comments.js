@@ -1,12 +1,12 @@
 const express = require('express');
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { authenticateToken, optionalAuth, requireAdmin } = require('../middleware/auth');
 const { sanitizeText } = require('../utils/sanitize');
 
 function createCommentsRouter(db) {
     const router = express.Router();
 
-    // 获取某条目的所有评论
-    router.get('/item/:itemId', authenticateToken, (req, res) => {
+    // 获取某条目的所有评论 - 游客可访问
+    router.get('/item/:itemId', optionalAuth, (req, res) => {
         try {
             const comments = db.prepare(`
                 SELECT c.*, u.username

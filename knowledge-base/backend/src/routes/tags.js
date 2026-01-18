@@ -1,11 +1,11 @@
 const express = require('express');
-const { authenticateToken } = require('../middleware/auth');
+const { optionalAuth } = require('../middleware/auth');
 
 function createTagsRouter(db) {
     const router = express.Router();
 
-    // 获取所有标签（带使用次数）
-    router.get('/', authenticateToken, (req, res) => {
+    // 获取所有标签（带使用次数）- 游客可访问
+    router.get('/', optionalAuth, (req, res) => {
         try {
             const tags = db.prepare(`
                 SELECT t.id, t.name, COUNT(it.item_id) as count
@@ -22,8 +22,8 @@ function createTagsRouter(db) {
         }
     });
 
-    // 获取某标签下的条目
-    router.get('/:id/items', authenticateToken, (req, res) => {
+    // 获取某标签下的条目 - 游客可访问
+    router.get('/:id/items', optionalAuth, (req, res) => {
         const { page = 1, limit = 20 } = req.query;
         const offset = (parseInt(page) - 1) * parseInt(limit);
 

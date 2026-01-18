@@ -26,6 +26,23 @@ function authenticateToken(req, res, next) {
     });
 }
 
+// 可选验证（游客可访问，但如果有 token 会解析用户信息）
+function optionalAuth(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token) {
+        jwt.verify(token, JWT_SECRET, (err, user) => {
+            if (!err) {
+                req.user = user;
+            }
+            next();
+        });
+    } else {
+        next();
+    }
+}
+
 // 验证管理员权限
 function requireAdmin(req, res, next) {
     if (req.user.role !== 'admin') {
@@ -43,4 +60,4 @@ function generateToken(user) {
     );
 }
 
-module.exports = { authenticateToken, requireAdmin, generateToken };
+module.exports = { authenticateToken, optionalAuth, requireAdmin, generateToken };

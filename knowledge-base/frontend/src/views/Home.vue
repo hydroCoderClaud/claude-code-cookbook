@@ -110,6 +110,14 @@
             </h3>
           </div>
           <div class="item-actions">
+            <el-button
+              type="info"
+              link
+              size="small"
+              @click="handleShare(item)"
+            >
+              分享
+            </el-button>
             <template v-if="canEdit(item)">
               <el-button
                 v-if="item.type === 'link'"
@@ -180,17 +188,32 @@
         @current-change="handlePageChange"
       />
     </div>
+
+    <!-- 分享弹窗 -->
+    <el-dialog v-model="shareDialogVisible" title="分享到微信" width="320px" center>
+      <div class="share-content">
+        <p class="share-title">{{ shareItem?.title }}</p>
+        <div class="qrcode-container">
+          <canvas ref="qrcodeCanvas"></canvas>
+        </div>
+        <p class="share-tip">微信扫一扫，分享给好友</p>
+        <el-button type="primary" size="small" @click="copyShareLink">
+          复制链接
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, Link, ArrowDown } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useKnowledgeStore } from '../stores/knowledge'
 import { useUserStore } from '../stores/user'
 import CommentSection from '../components/CommentSection.vue'
+import QRCode from 'qrcode'
 
 const router = useRouter()
 const knowledgeStore = useKnowledgeStore()
@@ -205,6 +228,11 @@ const currentPage = ref(1)
 const pageSize = 20
 const tagExpanded = ref(false)
 const maxVisibleTags = 10
+
+// 分享相关
+const shareDialogVisible = ref(false)
+const shareItem = ref(null)
+const qrcodeCanvas = ref(null)
 
 // 计算显示的标签
 const displayedTags = computed(() => {
@@ -281,6 +309,55 @@ const handleDelete = async (id) => {
 const formatDate = (dateStr) => {
   const date = new Date(dateStr)
   return date.toLocaleDateString('zh-CN')
+}
+
+// 分享功能
+const getShareUrl = (item) => {
+  const baseUrl = window.location.origin
+  if (item.type === 'link') {
+    return item.url
+  } else {
+    return `${baseUrl}/article/${item.id}`
+  }
+}
+
+const handleShare = async (item) => {
+  shareItem.value = item
+  shareDialogVisible.value = true
+
+  await nextTick()
+
+  const url = getShareUrl(item)
+  try {
+    await QRCode.toCanvas(qrcodeCanvas.value, url, {
+      width: 200,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    })
+  } catch (err) {
+    console.error('生成二维码失败:', err)
+    ElMessage.error('生成二维码失败')
+  }
+}
+
+const copyShareLink = async () => {
+  const url = getShareUrl(shareItem.value)
+  try {
+    await navigator.clipboard.writeText(url)
+    ElMessage.success('链接已复制')
+  } catch (err) {
+    // 降级方案
+    const input = document.createElement('input')
+    input.value = url
+    document.body.appendChild(input)
+    input.select()
+    document.execCommand('copy')
+    document.body.removeChild(input)
+    ElMessage.success('链接已复制')
+  }
 }
 
 onMounted(() => {
@@ -489,5 +566,29 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   margin-top: 24px;
+}
+
+/* 分享弹窗样式 */
+.share-content {
+  text-align: center;
+}
+
+.share-title {
+  font-size: 14px;
+  color: #303133;
+  margin-bottom: 16px;
+  word-break: break-all;
+}
+
+.qrcode-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.share-tip {
+  font-size: 12px;
+  color: #909399;
+  margin-bottom: 16px;
 }
 </style>

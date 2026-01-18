@@ -12,7 +12,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: () => import('../views/Home.vue'),
-    meta: { requiresAuth: true }
+    meta: { guestAllowed: true }  // 游客可访问
   },
   {
     path: '/link/new',
@@ -36,7 +36,7 @@ const routes = [
     path: '/article/:id',
     name: 'ArticleView',
     component: () => import('../views/ArticleView.vue'),
-    meta: { requiresAuth: true }
+    meta: { guestAllowed: true }  // 游客可访问
   },
   {
     path: '/article/:id/edit',
@@ -61,7 +61,10 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
 
-  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+  // 游客可访问的页面，直接放行
+  if (to.meta.guestAllowed) {
+    next()
+  } else if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     next('/login')
   } else if (to.meta.guest && userStore.isLoggedIn) {
     next('/')

@@ -34,7 +34,11 @@
 
           <footer class="article-footer">
             <el-button @click="router.back()">返回</el-button>
-            <el-button type="primary" @click="router.push(`/article/${article.id}/edit`)">
+            <el-button
+              v-if="canEdit"
+              type="primary"
+              @click="router.push(`/article/${article.id}/edit`)"
+            >
               编辑
             </el-button>
           </footer>
@@ -50,12 +54,20 @@ import { useRoute, useRouter } from 'vue-router'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 import { useKnowledgeStore } from '../stores/knowledge'
+import { useUserStore } from '../stores/user'
 
 const route = useRoute()
 const router = useRouter()
 const knowledgeStore = useKnowledgeStore()
+const userStore = useUserStore()
 
 const article = computed(() => knowledgeStore.currentItem)
+
+// 只有作者或管理员可以编辑
+const canEdit = computed(() => {
+  if (!article.value || !userStore.isLoggedIn) return false
+  return article.value.author_id === userStore.user?.id || userStore.isAdmin
+})
 
 const formatDate = (dateStr) => {
   const date = new Date(dateStr)
