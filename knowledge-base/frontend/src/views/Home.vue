@@ -204,7 +204,7 @@
             暂无文件
           </div>
           <div v-else class="file-list">
-            <div v-for="file in files.slice(0, 5)" :key="file.id" class="file-item" @click="handleDownload(file)">
+            <div v-for="file in files.slice(0, 5)" :key="file.id" class="file-item" @click="downloadFile(file)">
               <el-icon class="file-icon"><Document /></el-icon>
               <div class="file-info">
                 <div class="file-name" :title="file.original_name">{{ file.original_name }}</div>
@@ -243,6 +243,7 @@ import { useUserStore } from '../stores/user'
 import CommentSection from '../components/CommentSection.vue'
 import QRCode from 'qrcode'
 import { filesApi } from '../api'
+import { formatFileSize, downloadFile } from '../utils/file'
 
 const router = useRouter()
 const knowledgeStore = useKnowledgeStore()
@@ -400,24 +401,6 @@ const fetchFiles = async () => {
   } catch (error) {
     console.error('获取文件列表失败:', error)
   }
-}
-
-// 下载文件
-const handleDownload = (file) => {
-  const url = filesApi.getDownloadUrl(file.id)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = file.original_name
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-}
-
-// 格式化文件大小
-const formatFileSize = (bytes) => {
-  if (bytes < 1024) return bytes + ' B'
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }
 
 onMounted(() => {

@@ -36,7 +36,7 @@
           <div v-if="file.description" class="file-desc">{{ file.description }}</div>
         </div>
         <div class="file-actions">
-          <el-button type="primary" :icon="Download" @click="handleDownload(file)">
+          <el-button type="primary" :icon="Download" @click="downloadFile(file)">
             下载
           </el-button>
           <el-popconfirm
@@ -74,6 +74,7 @@ import { Upload, Download, Delete, Document } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '../stores/user'
 import { filesApi } from '../api'
+import { formatFileSize, downloadFile } from '../utils/file'
 
 const userStore = useUserStore()
 
@@ -158,17 +159,6 @@ const handleUploadError = (error) => {
   ElMessage.error('上传失败')
 }
 
-// 下载文件
-const handleDownload = (file) => {
-  const url = filesApi.getDownloadUrl(file.id)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = file.original_name
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-}
-
 // 删除文件
 const handleDelete = async (id) => {
   try {
@@ -178,13 +168,6 @@ const handleDelete = async (id) => {
   } catch (error) {
     // Error handled by API interceptor
   }
-}
-
-// 格式化文件大小
-const formatFileSize = (bytes) => {
-  if (bytes < 1024) return bytes + ' B'
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB'
-  return (bytes / (1024 * 1024)).toFixed(2) + ' MB'
 }
 
 // 格式化日期
