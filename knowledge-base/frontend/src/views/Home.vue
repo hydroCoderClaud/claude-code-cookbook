@@ -415,6 +415,7 @@ onMounted(() => {
 .main-layout {
   display: flex;
   gap: 20px;
+  align-items: flex-start;
 }
 
 .main-content {
@@ -427,13 +428,15 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
+.sidebar {
+  padding-top: 0;
+}
+
 .sidebar-card {
   background: #fff;
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 80px;
 }
 
 .sidebar-header {
