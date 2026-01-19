@@ -14,6 +14,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 
+// 信任代理（Nginx）
+app.set('trust proxy', 1);
+
 // 安全：HTTP 头
 app.use(helmet({
     contentSecurityPolicy: false, // 如果有前端静态文件需要调整
