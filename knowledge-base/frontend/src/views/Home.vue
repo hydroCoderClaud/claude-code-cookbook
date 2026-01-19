@@ -1,10 +1,7 @@
 <template>
   <div class="page-container">
-    <div class="main-layout">
-      <!-- 左侧主内容区 -->
-      <div class="main-content">
-        <!-- 搜索和筛选区 -->
-        <div class="search-area">
+    <!-- 搜索和筛选区 -->
+    <div class="search-area">
       <el-input
         v-model="searchQuery"
         placeholder="搜索标题或描述..."
@@ -85,13 +82,16 @@
       </span>
     </div>
 
-    <!-- 列表 -->
-    <div v-loading="knowledgeStore.loading" class="item-list">
-      <div v-if="knowledgeStore.items.length === 0 && !knowledgeStore.loading" class="empty-state">
-        <el-empty description="暂无内容" />
-      </div>
+    <!-- 主内容区：左侧列表 + 右侧下载中心 -->
+    <div class="main-layout">
+      <div class="main-content">
+        <!-- 列表 -->
+        <div v-loading="knowledgeStore.loading" class="item-list">
+          <div v-if="knowledgeStore.items.length === 0 && !knowledgeStore.loading" class="empty-state">
+            <el-empty description="暂无内容" />
+          </div>
 
-      <div v-for="item in knowledgeStore.items" :key="item.id" class="item-card">
+          <div v-for="item in knowledgeStore.items" :key="item.id" class="item-card">
         <div class="item-header">
           <div class="item-title-row">
             <el-tag :type="item.type === 'link' ? 'primary' : 'success'" size="small">
@@ -179,9 +179,9 @@
         <!-- 评论区 -->
         <CommentSection :item-id="item.id" :initial-count="item.comment_count || 0" />
       </div>
-    </div>
+        </div>
 
-    <!-- 分页 -->
+        <!-- 分页 -->
         <div v-if="knowledgeStore.total > pageSize" class="pagination">
           <el-pagination
             v-model:current-page="currentPage"
