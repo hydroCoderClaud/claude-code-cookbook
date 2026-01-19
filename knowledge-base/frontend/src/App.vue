@@ -6,6 +6,10 @@
         <div class="header-content">
           <div class="header-left">
             <router-link to="/" class="logo">HydroCoder</router-link>
+            <el-menu mode="horizontal" :ellipsis="false" router class="guest-menu">
+              <el-menu-item index="/">首页</el-menu-item>
+              <el-menu-item index="/downloads">下载中心</el-menu-item>
+            </el-menu>
           </div>
           <div class="header-right">
             <el-button type="primary" @click="router.push('/login')">登录</el-button>
@@ -20,6 +24,7 @@
             <router-link to="/" class="logo">HydroCoder</router-link>
             <el-menu mode="horizontal" :ellipsis="false" router>
               <el-menu-item index="/">首页</el-menu-item>
+              <el-menu-item index="/downloads">下载中心</el-menu-item>
               <el-menu-item index="/link/new">添加链接</el-menu-item>
               <el-menu-item index="/article/new">写文章</el-menu-item>
               <el-menu-item v-if="userStore.isAdmin" index="/users">用户管理</el-menu-item>
@@ -242,6 +247,10 @@ const handleLogout = () => {
 }
 
 .el-menu {
+  border-bottom: none;
+}
+
+.guest-menu {
   border-bottom: none;
 }
 

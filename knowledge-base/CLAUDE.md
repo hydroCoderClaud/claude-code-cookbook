@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-HydroCoder 知识分享平台，支持链接收藏管理和文章发布，具有用户权限管理、评论、标签筛选等功能。
+HydroCoder 知识分享平台，支持链接收藏管理、文章发布和文件下载，具有用户权限管理、评论、标签筛选等功能。
 
 ## 技术栈
 
@@ -19,6 +19,7 @@ HydroCoder 知识分享平台，支持链接收藏管理和文章发布，具有
 - sql.js (SQLite in-memory，持久化到文件)
 - JWT (jsonwebtoken) 认证
 - bcryptjs 密码加密
+- multer (文件上传)
 - helmet + express-rate-limit + xss (安全防护)
 
 ## 项目结构
@@ -34,11 +35,12 @@ knowledge-base/
 │   │   │   └── knowledge.js    # 知识条目状态
 │   │   ├── views/
 │   │   │   ├── Login.vue       # 登录页
-│   │   │   ├── Home.vue        # 首页/列表
+│   │   │   ├── Home.vue        # 首页/列表(含右侧下载列表)
 │   │   │   ├── LinkForm.vue    # 链接表单
 │   │   │   ├── ArticleEditor.vue  # 文章编辑器
 │   │   │   ├── ArticleView.vue    # 文章阅读
-│   │   │   └── UserManagement.vue # 用户管理(管理员)
+│   │   │   ├── UserManagement.vue # 用户管理(管理员)
+│   │   │   └── DownloadCenter.vue # 下载中心
 │   │   ├── components/
 │   │   │   └── CommentSection.vue # 评论组件
 │   │   └── App.vue             # 根组件(含修改密码)
@@ -57,11 +59,13 @@ knowledge-base/
 │   │   │   ├── items.js        # 条目 CRUD
 │   │   │   ├── tags.js         # 标签 API
 │   │   │   ├── comments.js     # 评论 API
-│   │   │   └── users.js        # 用户管理 API
+│   │   │   ├── users.js        # 用户管理 API
+│   │   │   └── files.js        # 文件上传下载 API
 │   │   └── utils/
 │   │       └── sanitize.js     # XSS 过滤
 │   ├── data/
-│   │   └── knowledge.db        # SQLite 数据库文件
+│   │   ├── knowledge.db        # SQLite 数据库文件
+│   │   └── uploads/            # 上传文件存储目录
 │   ├── scripts/                # 迁移脚本
 │   └── package.json
 │
@@ -84,6 +88,9 @@ cd frontend && npm run dev
 npm run install:all
 ```
 
+- 前端地址: http://localhost:6173
+- 后端地址: http://localhost:3000
+
 ## 数据库表结构
 
 - **users**: 用户表 (id, username, password, role, must_change_password, created_at)
@@ -91,6 +98,7 @@ npm run install:all
 - **tags**: 标签表 (id, name)
 - **item_tags**: 条目-标签关联 (item_id, tag_id)
 - **comments**: 评论表 (id, item_id, user_id, content, created_at)
+- **files**: 文件表 (id, filename, original_name, mimetype, size, description, uploader_id, created_at)
 
 ## API 端点
 
@@ -120,6 +128,12 @@ npm run install:all
 - `PUT /api/users/:id` - 修改用户
 - `DELETE /api/users/:id` - 删除用户
 
+### 文件管理
+- `GET /api/files` - 文件列表 (所有用户可访问)
+- `POST /api/files` - 上传文件 (仅管理员，multipart/form-data)
+- `GET /api/files/:id/download` - 下载文件 (所有用户可访问)
+- `DELETE /api/files/:id` - 删除文件 (仅管理员)
+
 ## 账号信息
 
 - **默认管理员**: admin / admin123
@@ -131,8 +145,15 @@ npm run install:all
 
 ## 权限说明
 
-- **普通用户**: 可创建/编辑/删除自己的内容，浏览所有内容，评论任何内容
-- **管理员**: 额外可管理用户、编辑/删除任何内容
+- **游客**: 可浏览内容、查看文件列表、下载文件
+- **普通用户**: 可创建/编辑/删除自己的内容，浏览所有内容，评论任何内容，下载文件
+- **管理员**: 额外可管理用户、编辑/删除任何内容、上传/删除文件
+
+## 文件上传限制
+
+- 最大文件大小: 200MB
+- 禁止上传的文件类型: .exe, .bat, .cmd, .sh, .php, .jsp, .asp, .aspx
+- 文件存储位置: backend/data/uploads/
 
 ## 安全措施
 
@@ -142,3 +163,4 @@ npm run install:all
 - JWT Token 认证
 - 密码 bcrypt 加密
 - 关闭公开注册，管理员添加用户
+- 文件上传类型过滤

@@ -1,7 +1,10 @@
 <template>
   <div class="page-container">
-    <!-- 搜索和筛选区 -->
-    <div class="search-area">
+    <div class="main-layout">
+      <!-- 左侧主内容区 -->
+      <div class="main-content">
+        <!-- 搜索和筛选区 -->
+        <div class="search-area">
       <el-input
         v-model="searchQuery"
         placeholder="搜索标题或描述..."
@@ -179,14 +182,39 @@
     </div>
 
     <!-- 分页 -->
-    <div v-if="knowledgeStore.total > pageSize" class="pagination">
-      <el-pagination
-        v-model:current-page="currentPage"
-        :page-size="pageSize"
-        :total="knowledgeStore.total"
-        layout="total, prev, pager, next"
-        @current-change="handlePageChange"
-      />
+        <div v-if="knowledgeStore.total > pageSize" class="pagination">
+          <el-pagination
+            v-model:current-page="currentPage"
+            :page-size="pageSize"
+            :total="knowledgeStore.total"
+            layout="total, prev, pager, next"
+            @current-change="handlePageChange"
+          />
+        </div>
+      </div>
+
+      <!-- 右侧下载列表 -->
+      <div class="sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-header">
+            <h3>下载中心</h3>
+            <router-link to="/downloads" class="view-all">查看全部</router-link>
+          </div>
+          <div v-if="files.length === 0" class="sidebar-empty">
+            暂无文件
+          </div>
+          <div v-else class="file-list">
+            <div v-for="file in files.slice(0, 5)" :key="file.id" class="file-item" @click="handleDownload(file)">
+              <el-icon class="file-icon"><Document /></el-icon>
+              <div class="file-info">
+                <div class="file-name" :title="file.original_name">{{ file.original_name }}</div>
+                <div class="file-size">{{ formatFileSize(file.size) }}</div>
+              </div>
+              <el-icon class="download-icon"><Download /></el-icon>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 分享弹窗 -->
@@ -208,12 +236,13 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, Link, ArrowDown } from '@element-plus/icons-vue'
+import { Search, Link, ArrowDown, Document, Download } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useKnowledgeStore } from '../stores/knowledge'
 import { useUserStore } from '../stores/user'
 import CommentSection from '../components/CommentSection.vue'
 import QRCode from 'qrcode'
+import { filesApi } from '../api'
 
 const router = useRouter()
 const knowledgeStore = useKnowledgeStore()
@@ -233,6 +262,9 @@ const maxVisibleTags = 10
 const shareDialogVisible = ref(false)
 const shareItem = ref(null)
 const qrcodeCanvas = ref(null)
+
+// 文件下载相关
+const files = ref([])
 
 // 计算显示的标签
 const displayedTags = computed(() => {
@@ -360,13 +392,171 @@ const copyShareLink = async () => {
   }
 }
 
+// 获取文件列表
+const fetchFiles = async () => {
+  try {
+    const res = await filesApi.getList()
+    files.value = res.files || []
+  } catch (error) {
+    console.error('获取文件列表失败:', error)
+  }
+}
+
+// 下载文件
+const handleDownload = (file) => {
+  const url = filesApi.getDownloadUrl(file.id)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = file.original_name
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+// 格式化文件大小
+const formatFileSize = (bytes) => {
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+}
+
 onMounted(() => {
   knowledgeStore.fetchItems({ page: 1, limit: pageSize })
   knowledgeStore.fetchTags()
+  fetchFiles()
 })
 </script>
 
 <style scoped>
+/* 主布局 */
+.main-layout {
+  display: flex;
+  gap: 20px;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.sidebar-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 80px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #303133;
+}
+
+.view-all {
+  font-size: 12px;
+  color: #409eff;
+  text-decoration: none;
+}
+
+.view-all:hover {
+  text-decoration: underline;
+}
+
+.sidebar-empty {
+  text-align: center;
+  color: #909399;
+  font-size: 13px;
+  padding: 20px 0;
+}
+
+.sidebar .file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar .file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sidebar .file-item:hover {
+  background-color: #f5f7fa;
+}
+
+.sidebar .file-icon {
+  color: #409eff;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar .file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar .file-name {
+  font-size: 13px;
+  color: #303133;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar .file-size {
+  font-size: 11px;
+  color: #909399;
+  margin-top: 2px;
+}
+
+.sidebar .download-icon {
+  color: #67c23a;
+  font-size: 16px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.sidebar .file-item:hover .download-icon {
+  opacity: 1;
+}
+
+/* 响应式：小屏隐藏侧边栏 */
+@media (max-width: 900px) {
+  .main-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .sidebar-card {
+    position: static;
+  }
+}
+
 /* 标签筛选区样式 */
 .tag-filter-area {
   display: flex;

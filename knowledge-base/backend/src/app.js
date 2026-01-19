@@ -8,6 +8,7 @@ const createUsersRouter = require('./routes/users');
 const createItemsRouter = require('./routes/items');
 const createTagsRouter = require('./routes/tags');
 const createCommentsRouter = require('./routes/comments');
+const createFilesRouter = require('./routes/files');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,7 +24,7 @@ app.use(helmet({
 const corsOptions = {
     origin: process.env.CORS_ORIGIN
         ? process.env.CORS_ORIGIN.split(',')
-        : ['http://localhost:5173', 'http://127.0.0.1:5173'],
+        : ['http://localhost:6173', 'http://127.0.0.1:6173'],
     credentials: true,
     optionsSuccessStatus: 200
 };
@@ -77,6 +78,7 @@ async function start() {
         app.use('/api/items', createItemsRouter(db));
         app.use('/api/tags', createTagsRouter(db));
         app.use('/api/comments', createCommentsRouter(db));
+        app.use('/api/files', createFilesRouter(db));
 
         // 404 处理
         app.use((req, res, next) => {

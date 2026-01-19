@@ -49,8 +49,22 @@ CREATE TABLE IF NOT EXISTS comments (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- 文件表
+CREATE TABLE IF NOT EXISTS files (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    filename TEXT NOT NULL,
+    original_name TEXT NOT NULL,
+    mimetype TEXT,
+    size INTEGER NOT NULL,
+    description TEXT,
+    uploader_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (uploader_id) REFERENCES users(id)
+);
+
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_items_type ON items(type);
 CREATE INDEX IF NOT EXISTS idx_items_author ON items(author_id);
 CREATE INDEX IF NOT EXISTS idx_items_created ON items(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_comments_item ON comments(item_id);
+CREATE INDEX IF NOT EXISTS idx_files_created ON files(created_at DESC);

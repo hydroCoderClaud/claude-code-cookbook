@@ -49,6 +49,12 @@ const routes = [
     name: 'UserManagement',
     component: () => import('../views/UserManagement.vue'),
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/downloads',
+    name: 'DownloadCenter',
+    component: () => import('../views/DownloadCenter.vue'),
+    meta: { guestAllowed: true }
   }
 ]
 

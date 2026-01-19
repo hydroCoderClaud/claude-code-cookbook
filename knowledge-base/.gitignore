@@ -7,6 +7,9 @@ deploy/config.sh
 # Database files
 backend/data/*.db
 
+# Uploaded files
+backend/data/uploads/
+
 # Logs
 *.log
 npm-debug.log*
