@@ -43,6 +43,8 @@ knowledge-base/
 │   │   │   └── DownloadCenter.vue # 下载中心
 │   │   ├── components/
 │   │   │   └── CommentSection.vue # 评论组件
+│   │   ├── utils/
+│   │   │   └── file.js         # 文件工具函数(格式化大小、下载)
 │   │   └── App.vue             # 根组件(含修改密码)
 │   └── package.json
 │
@@ -149,9 +151,11 @@ npm run install:all
 - **普通用户**: 可创建/编辑/删除自己的内容，浏览所有内容，评论任何内容，下载文件
 - **管理员**: 额外可管理用户、编辑/删除任何内容、上传/删除文件
 
-## 文件上传限制
+## 文件上传功能
 
 - 最大文件大小: 200MB
+- 前端上传超时: 10分钟
+- 上传时显示进度条（百分比 + 已上传/总大小）
 - 禁止上传的文件类型: .exe, .bat, .cmd, .sh, .php, .jsp, .asp, .aspx
 - 文件存储位置: backend/data/uploads/
 
@@ -164,3 +168,45 @@ npm run install:all
 - 密码 bcrypt 加密
 - 关闭公开注册，管理员添加用户
 - 文件上传类型过滤
+- 信任代理配置 (app.set('trust proxy', 1))
+
+## 生产部署 (Nginx + PM2)
+
+### Nginx 配置要点
+
+```nginx
+# 文件上传大小限制
+client_max_body_size 200M;
+
+# 大文件上传超时设置
+proxy_connect_timeout 600;
+proxy_send_timeout 600;
+proxy_read_timeout 600;
+send_timeout 600;
+```
+
+### PM2 命令
+
+```bash
+# 启动服务
+pm2 start backend/src/app.js --name knowledge-base
+
+# 重启服务
+pm2 restart knowledge-base
+
+# 查看日志
+pm2 logs knowledge-base
+
+# 查看状态
+pm2 status
+```
+
+### 服务器更新流程
+
+```bash
+cd /opt/zys/claude-code-cookbook
+git checkout -- knowledge-base/frontend/package-lock.json
+git pull
+cd knowledge-base/frontend && npm run build
+pm2 restart knowledge-base
+```
