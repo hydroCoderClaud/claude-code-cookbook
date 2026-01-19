@@ -53,16 +53,23 @@
     </div>
 
     <!-- 上传描述弹窗 -->
-    <el-dialog v-model="uploadDialogVisible" title="添加文件描述" width="400px">
+    <el-dialog v-model="uploadDialogVisible" title="添加文件描述" width="400px" :close-on-click-modal="!uploading">
       <el-input
         v-model="uploadDescription"
         type="textarea"
         :rows="3"
         placeholder="请输入文件描述（可选）"
+        :disabled="uploading"
       />
+      <div v-if="uploading" class="upload-progress">
+        <el-progress :percentage="uploadProgress" :status="uploadProgress === 100 ? 'success' : ''" />
+        <div class="progress-text">{{ uploadProgressText }}</div>
+      </div>
       <template #footer>
-        <el-button @click="cancelUpload">取消</el-button>
-        <el-button type="primary" @click="confirmUpload">确定上传</el-button>
+        <el-button @click="cancelUpload" :disabled="uploading">取消</el-button>
+        <el-button type="primary" @click="confirmUpload" :loading="uploading">
+          {{ uploading ? '上传中...' : '确定上传' }}
+        </el-button>
       </template>
     </el-dialog>
   </div>
@@ -84,6 +91,9 @@ const uploadRef = ref()
 const uploadDialogVisible = ref(false)
 const uploadDescription = ref('')
 const pendingFile = ref(null)
+const uploading = ref(false)
+const uploadProgress = ref(0)
+const uploadProgressText = ref('')
 
 // 上传URL和Headers
 const uploadUrl = computed(() => '/api/files')
@@ -135,15 +145,26 @@ const confirmUpload = async () => {
     formData.append('description', uploadDescription.value.trim())
   }
 
+  uploading.value = true
+  uploadProgress.value = 0
+  uploadProgressText.value = '准备上传...'
+
   try {
-    await filesApi.upload(formData)
+    await filesApi.upload(formData, (progressEvent) => {
+      const { loaded, total } = progressEvent
+      const percent = Math.round((loaded / total) * 100)
+      uploadProgress.value = percent
+      uploadProgressText.value = `${formatFileSize(loaded)} / ${formatFileSize(total)}`
+    })
     ElMessage.success('上传成功')
     fetchFiles()
+    uploadDialogVisible.value = false
+    pendingFile.value = null
   } catch (error) {
     ElMessage.error('上传失败')
   } finally {
-    uploadDialogVisible.value = false
-    pendingFile.value = null
+    uploading.value = false
+    uploadProgress.value = 0
   }
 }
 
@@ -274,5 +295,16 @@ onMounted(() => {
 
 .empty-state {
   padding: 60px 0;
+}
+
+.upload-progress {
+  margin-top: 16px;
+}
+
+.progress-text {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #909399;
+  text-align: center;
 }
 </style>

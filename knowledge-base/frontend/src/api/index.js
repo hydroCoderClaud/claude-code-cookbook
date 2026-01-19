@@ -76,9 +76,10 @@ export const commentsApi = {
 // 文件 API
 export const filesApi = {
   getList: () => api.get('/files'),
-  upload: (formData) => api.post('/files', formData, {
+  upload: (formData, onProgress) => api.post('/files', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
-    timeout: 60000 // 上传超时延长到 60 秒
+    timeout: 600000, // 上传超时延长到 10 分钟
+    onUploadProgress: onProgress
   }),
   delete: (id) => api.delete(`/files/${id}`),
   getDownloadUrl: (id) => `/api/files/${id}/download`
