@@ -27,7 +27,7 @@
           <el-icon :size="32"><Document /></el-icon>
         </div>
         <div class="file-info">
-          <div class="file-name">{{ file.original_name }}</div>
+          <a class="file-name" href="#" @click.prevent="downloadFile(file)">{{ file.original_name }}</a>
           <div class="file-meta">
             <span>{{ formatFileSize(file.size) }}</span>
             <span>{{ file.uploader_name || '未知' }} 上传</span>
@@ -240,9 +240,17 @@ onMounted(() => {
 .file-name {
   font-size: 15px;
   font-weight: 500;
-  color: #303133;
+  color: #409eff;
   margin-bottom: 6px;
   word-break: break-all;
+  text-decoration: none;
+  cursor: pointer;
+  display: block;
+}
+
+.file-name:hover {
+  color: #66b1ff;
+  text-decoration: underline;
 }
 
 .file-meta {
