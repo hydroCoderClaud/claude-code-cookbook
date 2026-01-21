@@ -27,7 +27,7 @@
           <el-icon :size="32"><Document /></el-icon>
         </div>
         <div class="file-info">
-          <a class="file-name" href="#" @click.prevent="downloadFile(file)">{{ file.original_name }}</a>
+          <a class="file-name" :href="'/api/files/' + file.id + '/download'">{{ file.original_name }}</a>
           <div class="file-meta">
             <span>{{ formatFileSize(file.size) }}</span>
             <span>{{ file.uploader_name || '未知' }} 上传</span>

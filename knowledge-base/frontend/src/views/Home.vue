@@ -204,14 +204,14 @@
             暂无文件
           </div>
           <div v-else class="file-list">
-            <div v-for="file in files.slice(0, 5)" :key="file.id" class="file-item" @click="downloadFile(file)">
+            <a v-for="file in files.slice(0, 5)" :key="file.id" class="file-item" :href="'/api/files/' + file.id + '/download'">
               <el-icon class="file-icon"><Document /></el-icon>
               <div class="file-info">
                 <div class="file-name" :title="file.original_name">{{ file.original_name }}</div>
                 <div class="file-size">{{ formatFileSize(file.size) }}</div>
               </div>
               <el-icon class="download-icon"><Download /></el-icon>
-            </div>
+            </a>
           </div>
         </div>
       </div>
@@ -243,7 +243,7 @@ import { useUserStore } from '../stores/user'
 import CommentSection from '../components/CommentSection.vue'
 import QRCode from 'qrcode'
 import { filesApi } from '../api'
-import { formatFileSize, downloadFile } from '../utils/file'
+import { formatFileSize } from '../utils/file'
 
 const router = useRouter()
 const knowledgeStore = useKnowledgeStore()
@@ -485,6 +485,8 @@ onMounted(() => {
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s;
+  text-decoration: none;
+  color: inherit;
 }
 
 .sidebar .file-item:hover {
