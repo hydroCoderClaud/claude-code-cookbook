@@ -21,3 +21,7 @@ https://hydrocoderclaud.github.io/claude-code-cookbook/学习claudecode编程的
 ## 贡献
 
 欢迎提交学习资料和改进建议。
+
+## 最后更新
+
+2026-02-27
