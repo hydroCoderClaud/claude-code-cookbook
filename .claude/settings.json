@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Edit(**)",
+      "Write(**)",
+      "Glob(**)",
+      "Grep(**)",
+      "LSP(**)",
+      "NotebookEdit(**)",
+      "TodoWrite(**)",
+      "AskUserQuestion(**)",
+      "Task(**)",
+      "Bash"
+    ]
+  },
+  "model": "opus"
+}
