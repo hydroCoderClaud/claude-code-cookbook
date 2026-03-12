@@ -1,6 +1,38 @@
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
 const { sanitizeText, sanitizeHtml, sanitizeUrl } = require('../utils/sanitize');
+
+// 配置 HTML 文件上传
+const reportsDir = path.join(__dirname, '../../data/reports');
+if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, reportsDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.html`;
+        cb(null, uniqueName);
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+    fileFilter: (req, file, cb) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (ext !== '.html' && ext !== '.htm') {
+            cb(new Error('只允许上传 HTML 文件'));
+            return;
+        }
+        cb(null, true);
+    }
+});
 
 function createItemsRouter(db) {
     const router = express.Router();
@@ -78,7 +110,7 @@ function createItemsRouter(db) {
             }
 
             // 类型筛选
-            if (type && (type === 'link' || type === 'article')) {
+            if (type && (type === 'link' || type === 'article' || type === 'report')) {
                 conditions.push('i.type = ?');
                 params.push(type);
             }
@@ -153,9 +185,21 @@ function createItemsRouter(db) {
         }
     });
 
-    // 创建条目
-    router.post('/', authenticateToken, (req, res) => {
-        const { type, title, url, description, content, content_type, tags = [] } = req.body;
+    // 创建条目（支持 report 类型上传 HTML）
+    router.post('/', authenticateToken, upload.single('htmlFile'), (req, res) => {
+        let { type, title, url, description, content, content_type, tags } = req.body;
+
+        // 解析 tags（如果是 JSON 字符串）
+        if (typeof tags === 'string') {
+            try {
+                tags = JSON.parse(tags);
+            } catch (e) {
+                tags = [];
+            }
+        }
+        if (!Array.isArray(tags)) {
+            tags = [];
+        }
 
         if (!type || !title) {
             return res.status(400).json({ error: '类型和标题不能为空' });
@@ -165,11 +209,16 @@ function createItemsRouter(db) {
             return res.status(400).json({ error: '链接地址不能为空' });
         }
 
+        if (type === 'report' && !req.file) {
+            return res.status(400).json({ error: '请上传 HTML 文件' });
+        }
+
         // 安全：过滤输入
         const safeTitle = sanitizeText(title);
         const safeUrl = type === 'link' ? sanitizeUrl(url) : null;
         const safeDesc = sanitizeText(description);
         const safeContent = content_type === 'richtext' ? sanitizeHtml(content) : content;
+        const htmlFile = type === 'report' && req.file ? req.file.filename : null;
 
         if (type === 'link' && !safeUrl) {
             return res.status(400).json({ error: '链接地址无效' });
@@ -177,9 +226,9 @@ function createItemsRouter(db) {
 
         try {
             db.prepare(`
-                INSERT INTO items (type, title, url, description, content, content_type, author_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            `).run(type, safeTitle, safeUrl, safeDesc || null, safeContent || null, content_type || null, req.user.id);
+                INSERT INTO items (type, title, url, description, content, content_type, html_file, author_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `).run(type, safeTitle, safeUrl, safeDesc || null, safeContent || null, content_type || null, htmlFile, req.user.id);
 
             // 查询刚插入的条目（更可靠的方式）
             const item = db.prepare(`
@@ -198,6 +247,10 @@ function createItemsRouter(db) {
             res.status(201).json({ ...item, tags: getItemTags(itemId) });
         } catch (error) {
             console.error('Create item error:', error);
+            // 如果是 report 类型，删除已上传的文件
+            if (type === 'report' && req.file) {
+                fs.unlink(path.join(reportsDir, req.file.filename), () => {});
+            }
             res.status(500).json({ error: '创建失败' });
         }
     });
@@ -268,12 +321,47 @@ function createItemsRouter(db) {
                 return res.status(403).json({ error: '没有删除权限' });
             }
 
+            // 如果是 report 类型，删除 HTML 文件
+            if (item.type === 'report' && item.html_file) {
+                const filePath = path.join(reportsDir, item.html_file);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            }
+
             db.prepare('DELETE FROM items WHERE id = ?').run(req.params.id);
 
             res.json({ message: '删除成功' });
         } catch (error) {
             console.error('Delete item error:', error);
             res.status(500).json({ error: '删除失败' });
+        }
+    });
+
+    // 获取工作报告 HTML 内容（游客可访问）
+    router.get('/:id/report-html', optionalAuth, (req, res) => {
+        try {
+            const item = db.prepare('SELECT * FROM items WHERE id = ? AND type = ?').get(req.params.id, 'report');
+
+            if (!item) {
+                return res.status(404).json({ error: '报告不存在' });
+            }
+
+            if (!item.html_file) {
+                return res.status(404).json({ error: 'HTML 文件不存在' });
+            }
+
+            const filePath = path.join(reportsDir, item.html_file);
+
+            if (!fs.existsSync(filePath)) {
+                return res.status(404).json({ error: 'HTML 文件已被删除' });
+            }
+
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.sendFile(filePath);
+        } catch (error) {
+            console.error('Get report HTML error:', error);
+            res.status(500).json({ error: '获取报告失败' });
         }
     });
 

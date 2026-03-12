@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-HydroCoder 知识分享平台，支持链接收藏管理、文章发布和文件下载，具有用户权限管理、评论、标签筛选等功能。
+HydroCoder 知识分享平台，支持链接收藏管理、文章发布、工作报告上传和文件下载，具有用户权限管理、评论、标签筛选等功能。
 
 ## 技术栈
 
@@ -39,6 +39,8 @@ knowledge-base/
 │   │   │   ├── LinkForm.vue    # 链接表单
 │   │   │   ├── ArticleEditor.vue  # 文章编辑器
 │   │   │   ├── ArticleView.vue    # 文章阅读
+│   │   │   ├── ReportForm.vue     # 工作报告上传
+│   │   │   ├── ReportView.vue     # 工作报告查看
 │   │   │   ├── UserManagement.vue # 用户管理(管理员)
 │   │   │   └── DownloadCenter.vue # 下载中心
 │   │   ├── components/
@@ -67,7 +69,8 @@ knowledge-base/
 │   │       └── sanitize.js     # XSS 过滤
 │   ├── data/
 │   │   ├── knowledge.db        # SQLite 数据库文件
-│   │   └── uploads/            # 上传文件存储目录
+│   │   ├── uploads/            # 上传文件存储目录
+│   │   └── reports/            # 工作报告 HTML 文件存储目录
 │   ├── scripts/                # 迁移脚本
 │   └── package.json
 │
@@ -96,7 +99,10 @@ npm run install:all
 ## 数据库表结构
 
 - **users**: 用户表 (id, username, password, role, must_change_password, created_at)
-- **items**: 知识条目 (id, type, title, url, description, content, content_type, author_id, created_at, updated_at)
+- **items**: 知识条目 (id, type, title, url, description, content, content_type, html_file, author_id, created_at, updated_at)
+  - type: 'link' | 'article' | 'report'
+  - content_type: 'markdown' | 'richtext' | 'html'
+  - html_file: 工作报告的 HTML 文件名
 - **tags**: 标签表 (id, name)
 - **item_tags**: 条目-标签关联 (item_id, tag_id)
 - **comments**: 评论表 (id, item_id, user_id, content, created_at)
@@ -111,10 +117,12 @@ npm run install:all
 
 ### 条目
 - `GET /api/items` - 列表 (支持 ?type, ?tag, ?q, ?time, ?sort, ?page, ?limit)
+  - type 可选值: link, article, report
 - `GET /api/items/:id` - 详情
-- `POST /api/items` - 创建
+- `GET /api/items/:id/report-html` - 获取工作报告 HTML 内容
+- `POST /api/items` - 创建 (支持 multipart/form-data 上传 HTML 文件)
 - `PUT /api/items/:id` - 更新 (作者或管理员)
-- `DELETE /api/items/:id` - 删除 (作者或管理员)
+- `DELETE /api/items/:id` - 删除 (作者或管理员，自动删除关联的 HTML 文件)
 
 ### 标签
 - `GET /api/tags` - 所有标签(含使用计数)
@@ -147,17 +155,26 @@ npm run install:all
 
 ## 权限说明
 
-- **游客**: 可浏览内容、查看文件列表、下载文件
-- **普通用户**: 可创建/编辑/删除自己的内容，浏览所有内容，评论任何内容，下载文件
+- **游客**: 可浏览内容、查看文件列表、下载文件、查看工作报告
+- **普通用户**: 可创建/编辑/删除自己的内容（链接、文章、工作报告），浏览所有内容，评论任何内容，下载文件
 - **管理员**: 额外可管理用户、编辑/删除任何内容、上传/删除文件
 
 ## 文件上传功能
 
+### 文件下载中心
 - 最大文件大小: 200MB
 - 前端上传超时: 10分钟
 - 上传时显示进度条（百分比 + 已上传/总大小）
 - 禁止上传的文件类型: .exe, .bat, .cmd, .sh, .php, .jsp, .asp, .aspx
 - 文件存储位置: backend/data/uploads/
+
+### 工作报告上传
+- 最大文件大小: 50MB
+- 仅支持 HTML 文件 (.html, .htm)
+- 文件存储位置: backend/data/reports/
+- 通过 iframe 展示 HTML 内容
+- 自动调整 iframe 高度适应内容
+- 暂不支持编辑，需删除后重新上传
 
 ## 安全措施
 

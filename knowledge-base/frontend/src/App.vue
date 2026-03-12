@@ -27,6 +27,7 @@
               <el-menu-item index="/downloads">下载中心</el-menu-item>
               <el-menu-item index="/link/new">添加链接</el-menu-item>
               <el-menu-item index="/article/new">写文章</el-menu-item>
+              <el-menu-item index="/report/new">上传工作报告</el-menu-item>
               <el-menu-item v-if="userStore.isAdmin" index="/users">用户管理</el-menu-item>
             </el-menu>
           </div>

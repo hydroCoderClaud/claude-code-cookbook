@@ -11,12 +11,13 @@ CREATE TABLE IF NOT EXISTS users (
 -- 知识条目表
 CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    type TEXT NOT NULL CHECK(type IN ('link', 'article')),
+    type TEXT NOT NULL CHECK(type IN ('link', 'article', 'report')),
     title TEXT NOT NULL,
     url TEXT,
     description TEXT,
     content TEXT,
-    content_type TEXT CHECK(content_type IN ('markdown', 'richtext')),
+    content_type TEXT CHECK(content_type IN ('markdown', 'richtext', 'html')),
+    html_file TEXT,
     author_id INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,

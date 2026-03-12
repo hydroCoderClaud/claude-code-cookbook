@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智水工坊2026-3月上旬工作情态报告 - 工作安排与总结</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 背景装饰 */
+        .background-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-shape:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            background: #ff6b6b;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .bg-shape:nth-child(2) {
+            width: 250px;
+            height: 250px;
+            background: #4ecdc4;
+            top: 60%;
+            right: 15%;
+            animation-delay: 5s;
+        }
+
+        .bg-shape:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            background: #ffe66d;
+            bottom: 15%;
+            left: 20%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* 幻灯片容器 */
+        .slider {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            height: 80vh;
+            max-height: 700px;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 幻灯片轨道 */
+        .slide-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 幻灯片 */
+        .slide {
+            min-width: 100%;
+            width: 100%;
+            height: 100%;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            padding: 60px;
+            position: relative;
+        }
+
+        /* 标题页 */
+        .title-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+        }
+
+        .title-slide h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            color: white !important;
+            z-index: 100;
+            position: relative;
+        }
+
+        .title-slide .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: white !important;
+            z-index: 100;
+            position: relative;
+        }
+
+        /* 内容页 */
+        .content-slide {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .slide h2 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            animation: slideRight 0.8s ease-out;
+        }
+
+        .slide h3 {
+            font-size: 1.5rem;
+            color: #4a5568;
+            margin-bottom: 15px;
+            margin-top: 30px;
+            padding-left: 20px;
+            border-left: 4px solid #667eea;
+            animation: slideLeft 0.8s ease-out 0.2s both;
+        }
+
+        .slide p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #2d3748;
+            margin-bottom: 15px;
+            animation: fadeIn 0.8s ease-out 0.4s both;
+        }
+
+        .slide ul {
+            list-style: none;
+            animation: fadeIn 0.8s ease-out 0.6s both;
+        }
+
+        .slide li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #2d3748;
+            margin-bottom: 12px;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .slide li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* 动画 */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideRight {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideLeft {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 导航按钮 */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            color: #667eea;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .prev-btn {
+            left: 30px;
+        }
+
+        .next-btn {
+            right: 30px;
+        }
+
+        /* 指示器 */
+        .indicators {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.active {
+            background: white;
+            transform: scale(1.3);
+        }
+
+        /* 页码 */
+        .page-number {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        /* 提示信息 */
+        .info {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px;
+            }
+
+            .title-slide h1 {
+                font-size: 2rem;
+            }
+
+            .slide h2 {
+                font-size: 1.8rem;
+            }
+
+            .slide h3 {
+                font-size: 1.2rem;
+            }
+
+            .slide p, .slide li {
+                font-size: 1rem;
+            }
+
+            .nav-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .prev-btn {
+                left: 15px;
+            }
+
+            .next-btn {
+                right: 15px;
+            }
+
+            .info {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+
+        /* 触摸滑动支持 */
+        .slider {
+            touch-action: pan-y;
+        }
+
+        .slide-track {
+            will-change: transform;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="background-decoration">
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <div class="slider">
+            <!-- 提示信息 -->
+            <div class="info">滑动或点击箭头导航 | Swipe or Click Arrows to Navigate</div>
+
+            <!-- 幻灯片轨道 -->
+            <div class="slide-track" id="slideTrack">
+                <!-- 第0页 - 标题页 -->
+                <div class="slide title-slide">
+                    <h1>智水工坊2026-3月上旬工作情态报告</h1>
+                    <div class="subtitle">工作安排与项目进展</div>
+                </div>
+
+                <!-- 第1页 -->
+                <div class="slide content-slide">
+                    <h2>cc-Desktop 1.6.98 版本升级</h2>
+                    <p><strong>版本：</strong>1.6.98</p>
+                    <ul>
+                        <li>开发者模式不再升级</li>
+                        <li>智能体模式框架稳定，不再做大版本升级，继续开发组件市场</li>
+                        <li>全面构建打通基础能力，包含文档、图片、视频、网页等</li>
+                        <li>新启动水利专业智能体模式：类似NotebookLM方式，提供水利专业场景智能体桌面助手</li>
+                        <li>请大家使用智能体模式工具，研究代码理解，为专业智能体助手做准备</li>
+                    </ul>
+                </div>
+
+                <!-- 第2页 -->
+                <div class="slide content-slide">
+                    <h2>减灾中心：智能体平台项目</h2>
+                    <ul>
+                        <li>本年度内落实，方案加入本体、桌面等内容，提升预算，加强客户粘度</li>
+                        <li>Web版本UI和桌面版本UI统一考虑，充分考虑NotebookLM方式</li>
+                        <li>结合水利和行业特点，以简单、易用、专业为主</li>
+                        <li>鑫阳完成现有任务的同时，加入智能体平台Web版本的研究和开发</li>
+                        <li>具体任务由勇生协调</li>
+                    </ul>
+                </div>
+
+                <!-- 第3页 -->
+                <div class="slide content-slide">
+                    <h2>国家电网项目</h2>
+                    <ul>
+                        <li>西团加入，进行驻场</li>
+                        <li>项目主负责：陈勇生</li>
+                        <li>实施：西团、汤工为主</li>
+                        <li>本周内成立项目组，制定里程碑和分工</li>
+                        <li>定义价值分配原则</li>
+                        <li>目标：4月底完工</li>
+                    </ul>
+                </div>
+
+                <!-- 第4页 -->
+                <div class="slide content-slide">
+                    <h2>石景山项目</h2>
+                    <ul>
+                        <li>下周进行现场部署，接入数据，进行里程碑确认</li>
+                        <li>目标：4月完工</li>
+                    </ul>
+                </div>
+
+                <!-- 第5页 -->
+                <div class="slide content-slide">
+                    <h2>智能本体平台</h2>
+                    <ul>
+                        <li>负责人：海青</li>
+                        <li>下周二重点详细阶段评估</li>
+                        <li>目标：3月底集成</li>
+                    </ul>
+                </div>
+
+                <!-- 第6页 -->
+                <div class="slide content-slide">
+                    <h2>Box硬件系列</h2>
+                    <ul>
+                        <li>良程设计的三层体系通过内部审核</li>
+                        <li>加快外部厂商的选择和沟通</li>
+                        <li>良程重心：商业计划书</li>
+                        <li>研究低算力部署同时，充分考虑面向未来的端侧大模型成本效用比</li>
+                    </ul>
+                </div>
+
+                <!-- 第7页 -->
+                <div class="slide content-slide">
+                    <h2>智能大坝研发</h2>
+                    <ul>
+                        <li>负责人：刘毅</li>
+                        <li>充分利用AI的能力</li>
+                        <li>目标：3月底出具完整实用系统</li>
+                        <li>4月份升级为智能体1.0</li>
+                    </ul>
+                </div>
+
+                <!-- 第8页 -->
+                <div class="slide content-slide">
+                    <h2>轻量级洪水预报系统</h2>
+                    <ul>
+                        <li>开发暂停中</li>
+                        <li>张越胜尽快重启</li>
+                        <li>目标：3月底上线部署可用版本</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 导航按钮 -->
+            <button class="nav-btn prev-btn" onclick="prevSlide()">‹</button>
+            <button class="nav-btn next-btn" onclick="nextSlide()">›</button>
+
+            <!-- 指示器 -->
+            <div class="indicators">
+                <div class="indicator active" onclick="goToSlide(0)"></div>
+                <div class="indicator" onclick="goToSlide(1)"></div>
+                <div class="indicator" onclick="goToSlide(2)"></div>
+                <div class="indicator" onclick="goToSlide(3)"></div>
+                <div class="indicator" onclick="goToSlide(4)"></div>
+                <div class="indicator" onclick="goToSlide(5)"></div>
+                <div class="indicator" onclick="goToSlide(6)"></div>
+                <div class="indicator" onclick="goToSlide(7)"></div>
+                <div class="indicator" onclick="goToSlide(8)"></div>
+            </div>
+
+            <!-- 页码 -->
+            <div class="page-number" id="pageNumber">1 / 9</div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 9; // 0-8页，共9页
+        const slideTrack = document.getElementById('slideTrack');
+        const indicators = document.querySelectorAll('.indicator');
+        const pageNumber = document.getElementById('pageNumber');
+        let isTransitioning = false;
+
+        // 更新指示器
+        function updateIndicators() {
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        // 更新页码
+        function updatePageNumber() {
+            pageNumber.textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        // 下一张幻灯片
+        function nextSlide() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+            } else {
+                currentSlide = 0;
+            }
+
+            slideTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+            updateIndicators();
+            updatePageNumber();
+
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 600);
+        }
+
+        // 上一张幻灯片
+        function prevSlide() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+
+            if (currentSlide > 0) {
+                currentSlide--;
+            } else {
+                currentSlide = totalSlides - 1;
+            }
+
+            slideTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+            updateIndicators();
+            updatePageNumber();
+
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 600);
+        }
+
+        // 跳转到指定幻灯片
+        function goToSlide(index) {
+            if (isTransitioning || index === currentSlide) return;
+            isTransitioning = true;
+
+            currentSlide = index;
+            slideTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+            updateIndicators();
+            updatePageNumber();
+
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 600);
+        }
+
+        // 键盘导航
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+            }
+        });
+
+        // 触摸滑动支持
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.querySelector('.slider').addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.querySelector('.slider').addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

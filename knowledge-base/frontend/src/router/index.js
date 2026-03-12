@@ -45,6 +45,24 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/report/new',
+    name: 'NewReport',
+    component: () => import('../views/ReportForm.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/report/:id',
+    name: 'ReportView',
+    component: () => import('../views/ReportView.vue'),
+    meta: { guestAllowed: true }
+  },
+  {
+    path: '/report/:id/edit',
+    name: 'EditReport',
+    component: () => import('../views/ReportEdit.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/users',
     name: 'UserManagement',
     component: () => import('../views/UserManagement.vue'),

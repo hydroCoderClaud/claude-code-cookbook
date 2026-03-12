@@ -17,12 +17,13 @@
         placeholder="类型"
         clearable
         size="large"
-        style="width: 120px"
+        style="width: 140px"
         @change="handleSearch"
       >
         <el-option label="全部" value="" />
         <el-option label="链接" value="link" />
         <el-option label="文章" value="article" />
+        <el-option label="工作报告" value="report" />
       </el-select>
 
       <el-select
@@ -94,8 +95,8 @@
           <div v-for="item in knowledgeStore.items" :key="item.id" class="item-card">
         <div class="item-header">
           <div class="item-title-row">
-            <el-tag :type="item.type === 'link' ? 'primary' : 'success'" size="small">
-              {{ item.type === 'link' ? '链接' : '文章' }}
+            <el-tag :type="getItemTagType(item.type)" size="small">
+              {{ getItemTypeLabel(item.type) }}
             </el-tag>
             <h3 class="item-title">
               <a
@@ -107,7 +108,10 @@
                 {{ item.title }}
                 <el-icon><Link /></el-icon>
               </a>
-              <router-link v-else :to="`/article/${item.id}`">
+              <router-link v-else-if="item.type === 'article'" :to="`/article/${item.id}`">
+                {{ item.title }}
+              </router-link>
+              <router-link v-else-if="item.type === 'report'" :to="`/report/${item.id}`">
                 {{ item.title }}
               </router-link>
             </h3>
@@ -132,11 +136,20 @@
                 编辑
               </el-button>
               <el-button
-                v-else
+                v-else-if="item.type === 'article'"
                 type="primary"
                 link
                 size="small"
                 @click="router.push(`/article/${item.id}/edit`)"
+              >
+                编辑
+              </el-button>
+              <el-button
+                v-else-if="item.type === 'report'"
+                type="primary"
+                link
+                size="small"
+                @click="router.push(`/report/${item.id}/edit`)"
               >
                 编辑
               </el-button>
@@ -344,14 +357,37 @@ const formatDate = (dateStr) => {
   return date.toLocaleDateString('zh-CN')
 }
 
+// 获取条目类型标签颜色
+const getItemTagType = (type) => {
+  const typeMap = {
+    link: 'primary',
+    article: 'success',
+    report: 'warning'
+  }
+  return typeMap[type] || 'info'
+}
+
+// 获取条目类型标签文本
+const getItemTypeLabel = (type) => {
+  const labelMap = {
+    link: '链接',
+    article: '文章',
+    report: '工作报告'
+  }
+  return labelMap[type] || type
+}
+
 // 分享功能
 const getShareUrl = (item) => {
   const baseUrl = window.location.origin
   if (item.type === 'link') {
     return item.url
-  } else {
+  } else if (item.type === 'article') {
     return `${baseUrl}/article/${item.id}`
+  } else if (item.type === 'report') {
+    return `${baseUrl}/report/${item.id}`
   }
+  return baseUrl
 }
 
 const handleShare = async (item) => {
