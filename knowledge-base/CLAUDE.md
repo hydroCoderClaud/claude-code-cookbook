@@ -220,15 +220,20 @@ pm2 status
 
 ### 服务器更新流程
 
-#### 方式一：一键部署脚本（推荐）
+#### 方式一：使用部署脚本（推荐）
 
 ```bash
-# 赋予执行权限（首次使用）
-chmod +x /opt/zys/claude-code-cookbook/knowledge-base/deploy.sh
-
-# 执行部署
-/opt/zys/claude-code-cookbook/knowledge-base/deploy.sh
+cd /opt/zys/claude-code-cookbook/knowledge-base/deploy
+./deploy.sh
+# 选择 "2. 仅更新代码并重启"
 ```
+
+部署脚本会自动完成：
+1. 拉取最新代码
+2. 安装后端依赖（如有变化）
+3. 构建前端
+4. 重启 PM2 服务
+5. 重载 Nginx
 
 #### 方式二：手动执行
 
@@ -236,12 +241,13 @@ chmod +x /opt/zys/claude-code-cookbook/knowledge-base/deploy.sh
 cd /opt/zys/claude-code-cookbook
 git checkout -- knowledge-base/frontend/package-lock.json
 git pull
-cd knowledge-base/frontend && npm run build
+cd knowledge-base/backend && npm install --production
+cd ../frontend && npm run build
 pm2 restart knowledge-base
 ```
 
-部署脚本会自动完成：
-1. 拉取最新代码
-2. 构建前端
-3. 重启 PM2 服务
-4. 显示服务状态
+**注意**：如果有数据库结构变更，需要手动执行迁移脚本：
+```bash
+cd /opt/zys/claude-code-cookbook/knowledge-base/backend
+node scripts/add-report-type.js  # 示例：添加工作报告类型
+```
